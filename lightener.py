@@ -1,11 +1,15 @@
 #!env python
 
+import sys
 import re
 import math
 import xml.etree.ElementTree as ET
 import argparse
 
 class LightenUp:
+
+    def __init__(self, verbose):
+        self.verbose = verbose
 
     def run(self, saturation, lightness):
         tree = ET.parse('Solarized Dark.icls')
@@ -24,14 +28,24 @@ class LightenUp:
 
     def handleOption(self, option, saturation, lightness):
         value = option.get('value')
-        
+
         if value is None:
             return
 
         if re.match('[0-9a-f]{6}', value):
+            self._log()
+            self._log("Name:", option.get('name'))
+            self._log("Original HEX value:", value)
+
             hsl_value = self.hex_to_hsl(value)
+            self._log("Original HSL value:", hsl_value)
+
             altered_value = self.alter(hsl_value, saturation, lightness)
+            self._log("New HSL value:", altered_value)
+
             new_value = self.hsl_to_hex(altered_value)
+            self._log("New HEX value:", new_value)
+
             option.set('value', new_value)
 
     def hex_to_hsl(self, value):
@@ -53,6 +67,12 @@ class LightenUp:
         b = hex(b)[2:].zfill(2)
 
         return str(r) + str(g) + str(b)
+
+    def _log(self, *args):
+        if (self.verbose):
+            for arg in args:
+                sys.stdout.write(str(arg) + " ")
+            sys.stdout.write("\n")
 
     def _inc_value(self, value, inc):
         if (inc is None):
@@ -183,14 +203,16 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-s, --saturation", dest="saturation", type=int, help="Alteration to be made to the colour saturations", metavar="+/-<int>")
     parser.add_argument("-l, --lightness", dest="lightness", type=int, help="Alteration to be made to the colour lightness", metavar="+/-<int>")
+    parser.add_argument("-v, --verbose", dest="verbose", action="store_true", help="Verbose mode")
 
     args = parser.parse_args()
 
     saturation = args.saturation
     lightness = args.lightness
+    verbose = args.verbose
 
     if (saturation is not None or lightness is not None):
-        lu = LightenUp()
+        lu = LightenUp(verbose)
         lu.run(saturation, lightness)
     else:
         print "Missing actions, see help"
