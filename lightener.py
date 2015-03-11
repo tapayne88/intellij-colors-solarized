@@ -14,15 +14,15 @@ class LightenUp:
         root.set('name', 'Solarized Dark - Modified');
 
         for option in root.iter('option'):
-            self.handleOption(option)
+            self.handleOption(option, saturation, lightness)
 
         attrs = root.find('attributes')
         for option in attrs.iter('option'):
-            self.handleOption(option)
+            self.handleOption(option, saturation, lightness)
 
         tree.write('Solarized Dark Modified.icls', "UTF-8", True);
 
-    def handleOption(self, option):
+    def handleOption(self, option, saturation, lightness):
         value = option.get('value')
         
         if value is None:
@@ -30,25 +30,19 @@ class LightenUp:
 
         if re.match('[0-9a-f]{6}', value):
             hsl_value = self.hex_to_hsl(value)
-            lighter_value = self.lighten(hsl_value)
-            new_value = self.hsl_to_hex(lighter_value)
+            altered_value = self.alter(hsl_value, saturation, lightness)
+            new_value = self.hsl_to_hex(altered_value)
             option.set('value', new_value)
-
-            if len(new_value) > 6:
-                print '===================='
-                print value
-                print new_value
 
     def hex_to_hsl(self, value):
         r,g,b = tuple(int(value[i:i+2], 16) for i in range(0, 6, 2))
         return self._rgb_to_hsl(r, g, b)
 
-    def lighten(self, value):
-        if (value[2] + 10.0 > 100):
-            lightness = 100.0
-            return (value[0], value[1], value[2])
-        else:
-            return (value[0], value[1], value[2] + 10.0)
+    def alter(self, value, saturation, lightness):
+        val1 = self._inc_value(value[1], saturation)
+        val2 = self._inc_value(value[2], lightness)
+
+        return (value[0], val1, val2)
 
     def hsl_to_hex(self, value):
         r,g,b = self._hsl_to_rgb(value[0], value[1], value[2])
@@ -59,6 +53,15 @@ class LightenUp:
         b = hex(b)[2:].zfill(2)
 
         return str(r) + str(g) + str(b)
+
+    def _inc_value(self, value, inc):
+        if (inc is None):
+            return value
+
+        new_val = value + inc
+        if (new_val >= 0 and new_val <= 100):
+            return new_val
+        return value
 
     def _rgb_to_hsl(self,r,g,b):
         """Converts an rgb(a) value to an hsl(a) value.
