@@ -3,12 +3,11 @@
 import re
 import math
 import xml.etree.ElementTree as ET
-
-from optparse import OptionParser
+import argparse
 
 class LightenUp:
 
-    def run(self, prop, action):
+    def run(self, saturation, lightness):
         tree = ET.parse('Solarized Dark.icls')
         root = tree.getroot()
 
@@ -178,22 +177,21 @@ class LightenUp:
 
 
 def main():
-    parser = OptionParser()
-    parser.add_option("-s", "--saturation", dest="saturation", type="int", help="Alteration to be made to the colour saturations", metavar="+/-<int>")
-    parser.add_option("-l", "--lightness", dest="lightness", type="int", help="Alteration to be made to the colour lightness", metavar="+/-<int>")
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-s, --saturation", dest="saturation", type=int, help="Alteration to be made to the colour saturations", metavar="+/-<int>")
+    parser.add_argument("-l, --lightness", dest="lightness", type=int, help="Alteration to be made to the colour lightness", metavar="+/-<int>")
 
-    (options, args) = parser.parse_args()
-    print options
-    print args
+    args = parser.parse_args()
 
-    saturation = options.saturation
-    lightness = options.lightness
+    saturation = args.saturation
+    lightness = args.lightness
 
     if (saturation is not None or lightness is not None):
         lu = LightenUp()
         lu.run(saturation, lightness)
     else:
         print "Missing actions, see help"
+        parser.print_help()
 
 if __name__ == '__main__':
     main()
