@@ -42,6 +42,9 @@ function createDarculaVersion {
 mkdir colors
 cp Solarized\ Light.icls colors
 cp Solarized\ Dark.icls colors
+if [ -e Solarized\ Dark\ Modified.icls ]; then
+    cp Solarized\ Dark\ Modified.icls colors
+fi
 
 # Create Darcula versions of both schemes,
 createDarculaVersion colors/Solarized\ Light.icls colors/Solarized\ Light\ \(Darcula\).icls
@@ -50,6 +53,9 @@ createDarculaVersion colors/Solarized\ Dark.icls colors/Solarized\ Dark\ \(Darcu
 # Create .xml versions of all schemes for backwards compatibility
 cp colors/Solarized\ Light.icls colors/Solarized\ Light.xml
 cp colors/Solarized\ Dark.icls colors/Solarized\ Dark.xml
+if [ -e colors/Solarized\ Dark\ Modified.icls ]; then
+    cp colors/Solarized\ Dark\ Modified.icls colors/Solarized\ Dark\ Modified.xml
+fi
 cp colors/Solarized\ Light\ \(Darcula\).icls colors/Solarized\ Light\ \(Darcula\).xml
 cp colors/Solarized\ Dark\ \(Darcula\).icls colors/Solarized\ Dark\ \(Darcula\).xml
 
